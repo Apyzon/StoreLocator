@@ -12,4 +12,9 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
+    <string name="title_activity_customer_home">customerHome</string>
+    <string name="cus_title_1">Map</string>
+    <string name="cus_title_2">Stores</string>
+    <string name="cus_title_3">Search</string>
+    <string name="cus_title_4">Lists</string>
 </resources>
