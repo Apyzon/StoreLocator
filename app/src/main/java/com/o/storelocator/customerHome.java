@@ -21,22 +21,28 @@ public class customerHome extends AppCompatActivity {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
-                case R.id.navigation_home:
+                case R.id.navigation_map:
                     //mTextMessage.setText(R.string.cus_title_1);
                     transaction = getSupportFragmentManager().beginTransaction();
                     transaction.add(R.id.frameLayout, new Map());
                     transaction.commit();
                     return true;
-                case R.id.navigation_dashboard:
+                case R.id.navigation_stores:
                     //mTextMessage.setText(R.string.cus_title_2);
                     transaction = getSupportFragmentManager().beginTransaction();
                     transaction.add(R.id.frameLayout, new Stores());
                     transaction.commit();
                     return true;
-                case R.id.navigation_notifications:
+                case R.id.navigation_search:
                     //mTextMessage.setText(R.string.cus_title_3);
                     transaction = getSupportFragmentManager().beginTransaction();
                     transaction.add(R.id.frameLayout, new Search());
+                    transaction.commit();
+                    return true;
+                case R.id.navigation_lists:
+                    //mTextMessage.setText(R.string.cus_title_3);
+                    transaction = getSupportFragmentManager().beginTransaction();
+                    transaction.add(R.id.frameLayout, new Lists());
                     transaction.commit();
                     return true;
             }
