@@ -8,8 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.TextView;
 
-//import android.app.Fragment;
-
 public class customerHome extends AppCompatActivity {
 
     private TextView mTextMessage;

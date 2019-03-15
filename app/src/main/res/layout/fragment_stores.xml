@@ -4,5 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorAccent"
+    android:gravity="bottom"
+    android:orientation="horizontal"
     tools:context=".Stores">
+
+    <ListView
+        android:id="@+id/stock_list"
+        android:layout_width="match_parent"
+        android:layout_height="610dp"
+        android:scrollbars="vertical" />
 </LinearLayout>
