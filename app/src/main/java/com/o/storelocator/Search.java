@@ -11,13 +11,13 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 import static android.support.constraint.Constraints.TAG;
 
@@ -28,6 +28,8 @@ import static android.support.constraint.Constraints.TAG;
 public class Search extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
+    List<item> iList;
+    String name;
 
     public Search() {
         // Required empty public constructor
@@ -45,30 +47,23 @@ public class Search extends Fragment {
             @Override
             public void onClick(View v) {
 
-                // Create a new user with a first and last name
-                Map<String, Object> user = new HashMap<>();
-                user.put("first", "Ada");
-                user.put("last", "Lovelace");
-                user.put("born", 1815);
-
-                // Add a new document with a generated ID
-                db.collection("users")
-                        .add(user)
-                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                db.collection("Items")
+                        .get()
+                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                             @Override
-                            public void onSuccess(DocumentReference documentReference) {
-                                Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error adding document", e);
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        name = (String) document.getData().get("Name");
+                                        Log.d(TAG, document.getId() + " => " + document.getData());
+                                    }
+                                } else {
+                                    Log.w(TAG, "Error getting documents.", task.getException());
+                                }
                             }
                         });
 
-
-                Toast.makeText(getActivity(),"Updated",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(),name,Toast.LENGTH_LONG).show();
             }
         });
 
