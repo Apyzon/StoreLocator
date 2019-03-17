@@ -55,6 +55,7 @@ public class Search extends Fragment {
                                 if (task.isSuccessful()) {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                         name = (String) document.getData().get("Name");
+                                        Toast.makeText(getActivity(),name,Toast.LENGTH_LONG).show();
                                         Log.d(TAG, document.getId() + " => " + document.getData());
                                     }
                                 } else {
@@ -63,7 +64,7 @@ public class Search extends Fragment {
                             }
                         });
 
-                Toast.makeText(getActivity(),name,Toast.LENGTH_LONG).show();
+
             }
         });
 

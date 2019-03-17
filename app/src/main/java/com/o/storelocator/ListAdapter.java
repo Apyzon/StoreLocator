@@ -20,7 +20,6 @@ public class ListAdapter extends BaseAdapter {
 
 
     public ListAdapter(Context context, List<String> items, List<Double> prices){
-        //super(context, R.layout.single_list_app_item, utilsArrayList);
         this.context = context;
         this.iTemNames = items;
         this.prices = prices;
@@ -68,7 +67,7 @@ public class ListAdapter extends BaseAdapter {
         }
 
         viewHolder.txtName.setText(iTemNames.get(position));
-        viewHolder.txtPrice.setText("Version: "+ prices.get(position));
+        viewHolder.txtPrice.setText( prices.get(position).toString());
 
         return result;
     }

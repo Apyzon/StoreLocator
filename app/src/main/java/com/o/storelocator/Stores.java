@@ -2,26 +2,20 @@ package com.o.storelocator;
 
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static android.support.constraint.Constraints.TAG;
 
 
 /**
@@ -31,7 +25,11 @@ public class Stores extends Fragment {
 
     FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-    List<String> itemNames = getItemNames();
+    String name;
+
+    Double price;
+
+    List<String> itemNames = new ArrayList<>();
 
     List<Double> itemPrices = new ArrayList<>();
 
@@ -52,44 +50,50 @@ public class Stores extends Fragment {
 
         lView = (ListView) v.findViewById(R.id.item_list);
 
-        lAdapter = new ListAdapter(getContext(), itemNames , itemPrices);
+        getItemNames();
+        getItemPrices();
+
+        lAdapter = new ListAdapter(this.getActivity(), itemNames, itemPrices);
 
         lView.setAdapter(lAdapter);
-
-        lView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                Toast.makeText(getActivity(), itemNames.get(i)+" "+itemPrices.get(i), Toast.LENGTH_SHORT).show();
-
-            }
-        });
 
         // Inflate the layout for this fragment
         return v;
     }
 
-    public List<String> getItemNames(){
-        DocumentReference docRef = db.collection("Items").document("1");
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+    public void getItemNames(){
+        db.collection("Items")
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        itemNames.add(document.getString("Name"));
-                        Toast.makeText(getActivity(),itemNames.get(0),Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (!queryDocumentSnapshots.isEmpty()){
+                    List<DocumentSnapshot> ds = queryDocumentSnapshots.getDocuments();
 
+                    for (DocumentSnapshot d : ds){
+                        name = (String) d.getData().get("Name");
+                        Toast.makeText(getActivity(),name,Toast.LENGTH_LONG).show();
+                        itemNames.add(name);
+                    }
+                }
             }
         });
-        return itemNames;
     }
 
+    public void getItemPrices(){
+        db.collection("Items")
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (!queryDocumentSnapshots.isEmpty()){
+                    List<DocumentSnapshot> ds = queryDocumentSnapshots.getDocuments();
+
+                    for (DocumentSnapshot d : ds){
+                        price = (Double) d.getLong("Price").doubleValue();
+                        Toast.makeText(getActivity(),price.toString(),Toast.LENGTH_LONG).show();
+                        itemPrices.add(price);
+                    }
+                }
+            }
+        });
+    }
 }
