@@ -48,7 +48,7 @@ public class Stores extends Fragment {
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_stores, container, false);
 
-        lView = (ListView) v.findViewById(R.id.item_list);
+        lView = (ListView) v.findViewById(R.id.item_list1);
 
         getItemNames();
         getItemPrices();

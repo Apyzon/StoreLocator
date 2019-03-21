@@ -1,6 +1,8 @@
 package com.o.storelocator;
 
 
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -14,17 +16,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.GeoDataClient;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
@@ -36,22 +38,21 @@ import static android.content.ContentValues.TAG;
  */
 public class Map extends Fragment implements OnMapReadyCallback {
 
-    GoogleMap mGoogleMap;
-    MapView mMapView;
-    View mView;
-
-    private CameraPosition mCameraPosition;
-
-    // The entry points to the Places API.
-    private GeoDataClient mGeoDataClient;
-    private PlaceDetectionClient mPlaceDetectionClient;
+    private GoogleMap mGoogleMap;
+    private MapView mMapView;
+    private View mView;
+    private Geofence mGeofence;
+    private GeofencingRequest mRequest;
+    private GeofencingClient mGeofencingClient;
+    private PendingIntent mGeofencePendingIntent;
+    private  LatLng mLatLng;
 
     // The entry point to the Fused Location Provider.
     private FusedLocationProviderClient mFusedLocationProviderClient;
 
-    // A default location (Sydney, Australia) and default zoom to use when location permission is
+    // A default location (NTU Clifton Campus) and default zoom to use when location permission is
     // not granted.
-    private final LatLng mDefaultLocation = new LatLng(-33.8523341, 151.2106085);
+    private final LatLng mDefaultLocation = new LatLng(52.911895, -1.185381);
     private static final int DEFAULT_ZOOM = 15;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean mLocationPermissionGranted;
@@ -74,11 +75,25 @@ public class Map extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         mView = inflater.inflate(R.layout.fragment_map, container, false);
 
-        // Construct a PlaceDetectionClient.
-        mPlaceDetectionClient = Places.getPlaceDetectionClient(this.getActivity(), null);
-
         // Construct a FusedLocationProviderClient.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
+
+        LocationServices.getGeofencingClient(this.getActivity());
+
+        // Initialization for geofence
+        mGeofence = new Geofence.Builder().setRequestId("Test")
+                .setCircularRegion(52.911895, -1.185381, 400f )
+                .setExpirationDuration(60 * 60 * 1000)
+                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+                .build();
+
+        mRequest = new GeofencingRequest.Builder().setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER).addGeofence(mGeofence).build();
+
+        if (mGeofencePendingIntent == null){
+            Intent intent = new Intent(this.getActivity(), GeofenceTransitionsIntentService.class);
+            mGeofencePendingIntent = PendingIntent.getService(this.getActivity(), 0, intent, PendingIntent.
+                    FLAG_UPDATE_CURRENT);
+        }
 
         return mView;
     }
@@ -88,7 +103,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
         super.onViewCreated(view, savedInstanceState);
 
         mMapView = (MapView) mView.findViewById(R.id.map);
-        if (mMapView != null){
+        if (mMapView != null) {
             mMapView.onCreate(null);
             mMapView.onResume();
             mMapView.getMapAsync(this);
@@ -116,6 +131,40 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
+
+        mLatLng = new LatLng(52.965767, -1.228953);
+
+        mGoogleMap.addMarker(new MarkerOptions()
+                .position(mLatLng)
+                .title("Test")
+                .snippet("Just testing"));
+
+        //creating geofence
+//try {
+//    if (mLocationPermissionGranted) {
+//        mGeofencingClient.addGeofences(mRequest, mGeofencePendingIntent)
+//                .addOnSuccessListener(this.getActivity(), new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        // Geofences added
+//                        // ...
+//                    }
+//                })
+//                .addOnFailureListener(this.getActivity(), new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        // Failed to add geofences
+//                        // ...
+//                    }
+//                });
+//    }else{
+//        getLocationPermission();
+//    }
+//}catch (SecurityException e)  {
+//    Log.e("Exception: %s", e.getMessage());
+//}
+
+
     }
 
     /**
@@ -224,4 +273,5 @@ public class Map extends Fragment implements OnMapReadyCallback {
         }
         updateLocationUI();
     }
+
 }
