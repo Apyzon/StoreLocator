@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -15,20 +16,22 @@ import java.util.List;
 public class ListAdapter extends BaseAdapter {
 
     Context context;
-    private final List<String> iTemNames;
-    private final List<Double> prices;
+    private final String [] iTemNames;
+    private final Double [] prices;
+    private final int [] images;
 
 
-    public ListAdapter(Context context, List<String> items, List<Double> prices){
+    public ListAdapter(Context context, String items[], Double prices[], int images[]){
         this.context = context;
         this.iTemNames = items;
         this.prices = prices;
+        this.images = images;
 
     }
 
     @Override
     public int getCount() {
-        return iTemNames.size();
+        return iTemNames.length;
     }
 
     @Override
@@ -57,6 +60,7 @@ public class ListAdapter extends BaseAdapter {
             convertView = inflater.inflate(R.layout.single_list_item, parent, false);
             viewHolder.txtName = (TextView) convertView.findViewById(R.id.iName);
             viewHolder.txtPrice = (TextView) convertView.findViewById(R.id.iPrice);
+            viewHolder.icon = (ImageView) convertView.findViewById(R.id.appIconIV);
 
             result=convertView;
 
@@ -66,8 +70,9 @@ public class ListAdapter extends BaseAdapter {
             result=convertView;
         }
 
-        viewHolder.txtName.setText(iTemNames.get(position));
-        viewHolder.txtPrice.setText( prices.get(position).toString());
+        viewHolder.txtName.setText(iTemNames[position]);
+        viewHolder.txtPrice.setText( "Price: " + prices[position].toString());
+        viewHolder.icon.setImageResource(images[position]);
 
         return result;
     }
@@ -76,6 +81,7 @@ public class ListAdapter extends BaseAdapter {
 
         TextView txtName;
         TextView txtPrice;
+        ImageView icon;
 
     }
 

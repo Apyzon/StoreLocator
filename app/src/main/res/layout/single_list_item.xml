@@ -5,22 +5,32 @@
     android:layout_height="match_parent"
     android:padding="8dp">
 
+    <ImageView
+        android:id="@+id/appIconIV"
+
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+
     <TextView
         android:id="@+id/iName"
-        android:text="Android Name"
+        android:text="Placeholder title"
         android:textSize="20sp"
+        android:textColor="@color/colorText"
         android:layout_marginTop="8dp"
         android:maxLines="1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/appIconIV"
+        android:layout_toEndOf="@+id/appIconIV"
         android:layout_marginLeft="12dp"
         android:layout_marginStart="12dp" />
 
     <TextView
         android:id="@+id/iPrice"
-        android:text="Android Version"
+        android:text="Placeholder price"
         android:textSize="14sp"
+        android:textColor="@color/colorText"
         android:maxLines="1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

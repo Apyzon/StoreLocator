@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.Geofence;
@@ -28,7 +29,13 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
@@ -38,6 +45,8 @@ import static android.content.ContentValues.TAG;
  */
 public class Map extends Fragment implements OnMapReadyCallback {
 
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+
     private GoogleMap mGoogleMap;
     private MapView mMapView;
     private View mView;
@@ -46,6 +55,7 @@ public class Map extends Fragment implements OnMapReadyCallback {
     private GeofencingClient mGeofencingClient;
     private PendingIntent mGeofencePendingIntent;
     private  LatLng mLatLng;
+    private List<LatLng> mStores;
 
     // The entry point to the Fused Location Provider.
     private FusedLocationProviderClient mFusedLocationProviderClient;
@@ -80,20 +90,21 @@ public class Map extends Fragment implements OnMapReadyCallback {
 
         LocationServices.getGeofencingClient(this.getActivity());
 
-        // Initialization for geofence
-        mGeofence = new Geofence.Builder().setRequestId("Test")
-                .setCircularRegion(52.911895, -1.185381, 400f )
-                .setExpirationDuration(60 * 60 * 1000)
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
-                .build();
 
-        mRequest = new GeofencingRequest.Builder().setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER).addGeofence(mGeofence).build();
-
-        if (mGeofencePendingIntent == null){
-            Intent intent = new Intent(this.getActivity(), GeofenceTransitionsIntentService.class);
-            mGeofencePendingIntent = PendingIntent.getService(this.getActivity(), 0, intent, PendingIntent.
-                    FLAG_UPDATE_CURRENT);
-        }
+//        // Initialization for geofence
+//        mGeofence = new Geofence.Builder().setRequestId("Test")
+//                .setCircularRegion(52.911895, -1.185381, 400f )
+//                .setExpirationDuration(60 * 60 * 1000)
+//                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT)
+//                .build();
+//
+//        mRequest = new GeofencingRequest.Builder().setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER).addGeofence(mGeofence).build();
+//
+//        if (mGeofencePendingIntent == null){
+//            Intent intent = new Intent(this.getActivity(), GeofenceTransitionsIntentService.class);
+//            mGeofencePendingIntent = PendingIntent.getService(this.getActivity(), 0, intent, PendingIntent.
+//                    FLAG_UPDATE_CURRENT);
+//        }
 
         return mView;
     }
@@ -132,12 +143,34 @@ public class Map extends Fragment implements OnMapReadyCallback {
         // Get the current location of the device and set the position of the map.
         getDeviceLocation();
 
-        mLatLng = new LatLng(52.965767, -1.228953);
+        db.collection("Stores")
+                .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                if (!queryDocumentSnapshots.isEmpty()){
+                    List<DocumentSnapshot> ds = queryDocumentSnapshots.getDocuments();
 
-        mGoogleMap.addMarker(new MarkerOptions()
-                .position(mLatLng)
-                .title("Test")
-                .snippet("Just testing"));
+                    for (DocumentSnapshot d : ds){
+                        Double Latitude = d.getGeoPoint("Location").getLatitude();
+                        Double Longitude = d.getGeoPoint("Location").getLongitude();
+                        String title = d.getData().get("Name").toString();
+                        String storeID = d.getData().get("StoreID").toString();
+
+                        //Draw marker
+                        mLatLng = new LatLng(Latitude,Longitude);
+                        mGoogleMap.addMarker(new MarkerOptions()
+                                .position(mLatLng)
+                                .title(title)
+                                .snippet("StoreID: " + storeID));
+//                        mStores.add(mLatLng);
+                    }
+                }
+            }
+        });
+
+//        for(int i = 0; i < mStores.size(); i++){
+//
+//        }
 
         //creating geofence
 //try {
